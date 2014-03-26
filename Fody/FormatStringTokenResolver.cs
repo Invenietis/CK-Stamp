@@ -21,6 +21,8 @@ public class FormatStringTokenResolver
         template = template.Replace("%githash%", branch.Tip.Sha);
         
         template = template.Replace("%branch%", repo.Head.Name);
+
+        template = template.Replace( "%semver%", GetSemanticVersion( assemblyVersion.ToString( 3 ), repo.Head.Name == "master" ? null : repo.Head.Name ) );
         
         template = template.Replace("%haschanges%", repo.IsClean() ? "" : "HasChanges");
 
@@ -30,6 +32,13 @@ public class FormatStringTokenResolver
         template = reEnvironmentToken.Replace(template, FormatEnvironmentVariable);
 
         return template.Trim();
+    }
+
+    private string GetSemanticVersion( string majorMinorPatchVersions, string prerelease = null )
+    {
+        string prereleaseString = prerelease == null ? String.Empty : String.Format( "-{0}", prerelease );
+
+        return String.Format( "{0}{1}", majorMinorPatchVersions, prereleaseString );
     }
 
     string FormatUserName()

@@ -172,4 +172,17 @@ public class TokenResolverTests
                 Assert.AreEqual(expected, result);
             });
     }
+
+    [Test]
+    public void Replace_SemVer()
+    {
+        DoWithCurrentRepo( repo =>
+        {
+            string expected = repo.Head.Name == "master" ? @"1.0.0" : @"1.0.0-" + repo.Head.Name;
+
+            var result = resolver.ReplaceTokens( "%semver%", moduleDefinition, repo );
+
+            Assert.AreEqual( expected, result );
+        } );
+    }
 }

@@ -35,6 +35,7 @@ The tokens are:
 - `%githash%` is replaced with the SHA1 hash of the branch tip of the repository
 - `%branch%` is replaced with the branch name of the repository
 - `%haschanges%` is replaced with the string "HasChanges" if the repository is dirty, else a blank string
+- `%semver%` is replaced with a simple semantic version: major, minor and revision version if the branch if master, otherwise it appends a dash and the branch name.
 
 > NOTE: if you already have an AssemblyInformationalVersion attribute and it doesn't use replacement tokens, it will not be modified at all.
 

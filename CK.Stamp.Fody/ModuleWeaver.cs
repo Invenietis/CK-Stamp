@@ -5,6 +5,7 @@ using System.Linq;
 using CK.Releaser;
 using LibGit2Sharp;
 using Mono.Cecil;
+using Mono.Collections.Generic;
 
 public class ModuleWeaver
 {
@@ -15,11 +16,6 @@ public class ModuleWeaver
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
 
-    readonly FormatStringTokenResolver formatStringTokenResolver;
-    string assemblyInfoVersion;
-    Version assemblyVersion;
-    bool dotGitDirExists;
-
     static PersistentInfo _persistentInfo;
 
     StandardInfo _info;
@@ -29,57 +25,27 @@ public class ModuleWeaver
     {
         LogInfo = s => { };
         LogWarning = s => { };
-        formatStringTokenResolver = new FormatStringTokenResolver();
     }
 
     public void Execute()
     {
         _info = new CK.Releaser.StandardInfo( EnsurePersistentInfo(), ModuleDefinition );
-
-        var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
-
-        var gitDir = GitFinder.TreeWalkForGitDir(SolutionDirectoryPath);
-        if (gitDir == null)
+        Collection<CustomAttribute> customAttributes = ModuleDefinition.Assembly.CustomAttributes;
+        var customAttribute = customAttributes.FirstOrDefault( x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute" );
+        if( customAttribute != null )
         {
-            LogWarning("No .git directory found.");
-            return;
+            _informationalVersion = (string)customAttribute.ConstructorArguments[0].Value;
+            _informationalVersion = _info.ReplaceTokens( _informationalVersion );
+            customAttribute.ConstructorArguments[0] = new CustomAttributeArgument( ModuleDefinition.TypeSystem.String, _informationalVersion );
         }
-        dotGitDirExists = true;
-
-        using (var repo = GetRepo(gitDir))
+        else
         {
-            var branch = repo.Head;
-            if (branch.Tip == null)
-            {
-                LogWarning("No Tip found. Has repo been initialize?");
-                return;
-            }
-            assemblyVersion = ModuleDefinition.Assembly.Name.Version;
-
-            var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
-            if (customAttribute != null)
-            {
-                assemblyInfoVersion = (string) customAttribute.ConstructorArguments[0].Value;
-                assemblyInfoVersion = formatStringTokenResolver.ReplaceTokens(assemblyInfoVersion, ModuleDefinition, repo);
-                VerifyStartsWithVersion(assemblyInfoVersion);
-                customAttribute.ConstructorArguments[0] = new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion);
-            }
-            else
-            {
-                var versionAttribute = GetVersionAttribute();
-                var constructor = ModuleDefinition.Import(versionAttribute.Methods.First(x => x.IsConstructor));
-                customAttribute = new CustomAttribute(constructor);
-                if (repo.IsClean())
-                {
-                    assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2}", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
-                }
-                else
-                {
-                    assemblyInfoVersion = string.Format("{0} Head:'{1}' Sha:{2} HasPendingChanges", assemblyVersion, repo.Head.Name, branch.Tip.Sha);
-                }
-                customAttribute.ConstructorArguments.Add(new CustomAttributeArgument(ModuleDefinition.TypeSystem.String, assemblyInfoVersion));
-                customAttributes.Add(customAttribute);
-            }
+            var versionAttribute = GetVersionAttribute();
+            var constructor = ModuleDefinition.Import( versionAttribute.Methods.First( x => x.IsConstructor ) );
+            customAttribute = new CustomAttribute( constructor );
+            _informationalVersion = _info.ToString();
+            customAttribute.ConstructorArguments.Add( new CustomAttributeArgument( ModuleDefinition.TypeSystem.String, _informationalVersion ) );
+            customAttributes.Add( customAttribute );
         }
     }
 
@@ -94,33 +60,6 @@ public class ModuleWeaver
             Environment.SetEnvironmentVariable( "PATH", newPath );
         }
         return _persistentInfo;
-    }
-
-
-    void VerifyStartsWithVersion(string versionString)
-    {
-        var prefix = new string(versionString.TakeWhile(x => char.IsDigit(x) || x == '.').ToArray());
-        Version fake;
-        if (!Version.TryParse(prefix, out fake))
-        {
-            throw new WeavingException("The version string must be prefixed with a valid Version. The following string does not: " + versionString);
-        }
-    }
-
-    static Repository GetRepo(string gitDir)
-    {
-        try
-        {
-            return new Repository(gitDir);
-        }
-        catch (Exception exception)
-        {
-            if (exception.Message.Contains("LibGit2Sharp.Core.NativeMethods") || exception.Message.Contains("FilePathMarshaler"))
-            {
-                throw new WeavingException("Restart of Visual Studio required due to update of 'Stamp.Fody'.");
-            }
-            throw;
-        }
     }
 
     static string GetProcessorArchitecture()
@@ -142,39 +81,37 @@ public class ModuleWeaver
 
     public void AfterWeaving()
     {
-        if (!dotGitDirExists)
-        {
-            return;
-        }
-        var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
-        var arguments = string.Format("\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, assemblyInfoVersion, assemblyVersion);
-        LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
+        var verPatchPath = Path.Combine( AddinDirectoryPath, "verpatch.exe" );
+        // Product version MUST start with the binary version number.
+        var productVersion = _info.AssemblyVersion.ToString() + " - " + _informationalVersion;
+        var arguments = string.Format( "\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, productVersion, _info.AssemblyVersion.ToString() );
+        LogInfo( string.Format( "Patching version using: {0} {1}", verPatchPath, arguments ) );
         var startInfo = new ProcessStartInfo
-                        {
-                            FileName = verPatchPath,
-                            Arguments = arguments,
-                            CreateNoWindow = true,
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            WorkingDirectory = Path.GetTempPath()
-                        };
-        using (var process = Process.Start(startInfo))
         {
-            if (!process.WaitForExit(1000))
+            FileName = verPatchPath,
+            Arguments = arguments,
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            WorkingDirectory = Path.GetTempPath()
+        };
+        using( var process = Process.Start( startInfo ) )
+        {
+            if( !process.WaitForExit( 1000 ) )
             {
-                var timeoutMessage = string.Format("Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments);
-                throw new WeavingException(timeoutMessage);
+                var timeoutMessage = string.Format( "Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments );
+                throw new WeavingException( timeoutMessage );
             }
 
-            if (process.ExitCode == 0)
+            if( process.ExitCode == 0 )
             {
                 return;
             }
             var output = process.StandardOutput.ReadToEnd();
             var error = process.StandardError.ReadToEnd();
-            var message = string.Format("Failed to apply product version to Win32 resources.\r\nOutput: {0}\r\nError: {1}", output, error);
-            throw new WeavingException(message);
+            var message = string.Format( "Failed to apply product version to Win32 resources.\r\nOutput: {0}\r\nError: {1}", output, error );
+            throw new WeavingException( message );
         }
     }
 }

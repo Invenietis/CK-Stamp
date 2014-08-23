@@ -21,8 +21,8 @@ namespace CK.Stamp.Fody.Tests
         protected ProcessAssemblyBaseTest( string relativePath )
         {
             BeforeAssemblyPath = Path.GetFullPath( relativePath );
-#if (!DEBUG)
-            beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
+#if !DEBUG
+            BeforeAssemblyPath = BeforeAssemblyPath.Replace("Debug", "Release");
 #endif
 
             AfterAssemblyPath = BeforeAssemblyPath.Replace( ".dll", "2.dll" );

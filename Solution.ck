@@ -2,7 +2,11 @@
 <c:Solution xmlns:c="http://invenietis.net/ck-release">
   <c:Version>2</c:Version>
   <c:Name>CK-Stamp</c:Name>
-  <c:Fixes />
+  <c:Fixes>
+    <c:Disabled>Ensures Version Attributes in SharedAssemblyInfo.cs.</c:Disabled>
+    <c:Disabled>Assembly 'CK.Stamp.Fody' must be signed.</c:Disabled>
+    <c:Disabled>Assemblies that 'CK.Stamp.Fody' references must be signed.</c:Disabled>
+  </c:Fixes>
   <c:Versioning c:Mode="Simple" />
   <c:InfoReleaseDatabase>
     <c:Name>CK-Public-Release</c:Name>

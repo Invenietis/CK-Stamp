@@ -101,9 +101,10 @@ xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBin
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"
 
-copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.1.0.0-develop\CK.Stamp.Fody.dll"
-
-copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.1.0.0-develop\CK.Stamp.Fody.pdb"
+echo *******************************
+copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.dll"
+copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.pdb"
+echo *******************************
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

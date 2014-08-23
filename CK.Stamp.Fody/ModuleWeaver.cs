@@ -14,11 +14,16 @@ public class ModuleWeaver
     public string SolutionDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
-    static bool isPathSet;
+
     readonly FormatStringTokenResolver formatStringTokenResolver;
     string assemblyInfoVersion;
     Version assemblyVersion;
     bool dotGitDirExists;
+
+    static PersistentInfo _persistentInfo;
+
+    StandardInfo _info;
+    string _informationalVersion;
 
     public ModuleWeaver()
     {
@@ -29,7 +34,8 @@ public class ModuleWeaver
 
     public void Execute()
     {
-        SetSearchPath();
+        _info = new CK.Releaser.StandardInfo( EnsurePersistentInfo(), ModuleDefinition );
+
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
         var gitDir = GitFinder.TreeWalkForGitDir(SolutionDirectoryPath);
@@ -77,6 +83,20 @@ public class ModuleWeaver
         }
     }
 
+    PersistentInfo EnsurePersistentInfo()
+    {
+        if( _persistentInfo == null )
+        {
+            _persistentInfo = PersistentInfo.LoadFromPath( SolutionDirectoryPath );
+            var nativeBinaries = Path.Combine( AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture() );
+            var existingPath = Environment.GetEnvironmentVariable( "PATH" );
+            var newPath = string.Concat( nativeBinaries, Path.PathSeparator, existingPath );
+            Environment.SetEnvironmentVariable( "PATH", newPath );
+        }
+        return _persistentInfo;
+    }
+
+
     void VerifyStartsWithVersion(string versionString)
     {
         var prefix = new string(versionString.TakeWhile(x => char.IsDigit(x) || x == '.').ToArray());
@@ -103,38 +123,21 @@ public class ModuleWeaver
         }
     }
 
-    void SetSearchPath()
-    {
-        if (isPathSet)
-        {
-            return;
-        }
-        isPathSet = true;
-        var nativeBinaries = Path.Combine(AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture());
-        var existingPath = Environment.GetEnvironmentVariable("PATH");
-        var newPath = string.Concat(nativeBinaries, Path.PathSeparator, existingPath);
-        Environment.SetEnvironmentVariable("PATH", newPath);
-    }
-
     static string GetProcessorArchitecture()
     {
-        if (Environment.Is64BitProcess)
-        {
-            return "amd64";
-        }
-        return "x86";
+        return Environment.Is64BitProcess ? "amd64" : "x86";
     }
 
     TypeDefinition GetVersionAttribute()
     {
-        var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
-        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
-        if (msCoreAttribute != null)
+        var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve( "mscorlib" );
+        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault( x => x.Name == "AssemblyInformationalVersionAttribute" );
+        if( msCoreAttribute != null )
         {
             return msCoreAttribute;
         }
-        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
-        return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
+        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve( "System.Runtime" );
+        return systemRuntime.MainModule.Types.First( x => x.Name == "AssemblyInformationalVersionAttribute" );
     }
 
     public void AfterWeaving()

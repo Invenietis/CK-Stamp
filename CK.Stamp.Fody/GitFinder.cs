@@ -37,7 +37,7 @@ namespace CK.Releaser
             {
                 if( exception.Message.Contains( "LibGit2Sharp.Core.NativeMethods" ) || exception.Message.Contains( "FilePathMarshaler" ) )
                 {
-                    throw new WeavingException( "Restart of Visual Studio required due to update of 'CK.Stamp.Fody'." );
+                    throw new WeavingException( "Restart of Visual Studio required due to update of 'CK.Stamp.Fody': " + exception.Message );
                 }
                 throw;
             }

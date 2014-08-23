@@ -67,7 +67,7 @@
   <ItemGroup>
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="FormatStringTokenResolver.cs" />
-    <Compile Include="GitDirFinder.cs" />
+    <Compile Include="GitFinder.cs" />
     <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />
@@ -91,13 +91,16 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-
-"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
+    <PostBuildEvent>"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
 if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
 if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
-xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
+xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"
+
+copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.1.0.0-develop\CK.Stamp.Fody.dll"
+
+copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.1.0.0-develop\CK.Stamp.Fody.pdb"
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

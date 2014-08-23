@@ -84,7 +84,7 @@
       <Project>{7dec4e2d-f872-434e-a267-0bad65299950}</Project>
       <Name>AssemblyToProcess</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Fody\CK.Stamp.Fody.csproj">
+    <ProjectReference Include="..\CK.Stamp.Fody\CK.Stamp.Fody.csproj">
       <Project>{C3578A7B-09A6-4444-9383-0DEAFA4958BD}</Project>
       <Name>CK.Stamp.Fody</Name>
     </ProjectReference>

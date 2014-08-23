@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using CK.Releaser;
 using LibGit2Sharp;
 using Mono.Cecil;
 
@@ -31,7 +32,7 @@ public class ModuleWeaver
         SetSearchPath();
         var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
 
-        var gitDir = GitDirFinder.TreeWalkForGitDir(SolutionDirectoryPath);
+        var gitDir = GitFinder.TreeWalkForGitDir(SolutionDirectoryPath);
         if (gitDir == null)
         {
             LogWarning("No .git directory found.");

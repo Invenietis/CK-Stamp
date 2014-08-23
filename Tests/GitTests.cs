@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using CK.Releaser;
 using LibGit2Sharp;
 using NUnit.Framework;
 
@@ -10,7 +11,7 @@ public class GitTests
     [Ignore]
     public void Foo()
     {
-		using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+		using (var repo = new Repository(GitFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
 		{
 			var repositoryStatus = repo.Index.RetrieveStatus();
 			var clean =

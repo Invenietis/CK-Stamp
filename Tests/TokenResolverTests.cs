@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using CK.Releaser;
 using LibGit2Sharp;
 using Mono.Cecil;
 using NUnit.Framework;
@@ -25,7 +26,7 @@ public class TokenResolverTests
 
     void DoWithCurrentRepo(Action<Repository> doWithRepo)
     {
-        using (var repo = new Repository(GitDirFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
+        using (var repo = new Repository(GitFinder.TreeWalkForGitDir(Environment.CurrentDirectory)))
         {
             if (doWithRepo != null) doWithRepo(repo);
         }

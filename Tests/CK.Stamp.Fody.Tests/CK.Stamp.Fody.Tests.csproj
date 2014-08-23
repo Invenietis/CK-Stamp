@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C3578A7B-09A6-4444-9383-0DEAFA4958BD}</ProjectGuid>
+    <ProjectGuid>{5A86453B-96FB-4B6E-A283-225BB9F753D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Stamp.Fody</RootNamespace>
-    <AssemblyName>CK.Stamp.Fody</AssemblyName>
+    <RootNamespace>Tests</RootNamespace>
+    <AssemblyName>Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -22,8 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,67 +31,69 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibGit2Sharp">
-      <HintPath>..\packages\LibGit2Sharp.0.18.1.0\lib\net40\LibGit2Sharp.dll</HintPath>
+      <HintPath>..\..\packages\LibGit2Sharp.0.18.1.0\lib\net40\LibGit2Sharp.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Cecil, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\Cecil\Mono.Cecil.dll</HintPath>
+      <HintPath>..\..\Lib\Cecil\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Mdb, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\Cecil\Mono.Cecil.Mdb.dll</HintPath>
+      <HintPath>..\..\Lib\Cecil\Mono.Cecil.Mdb.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Pdb, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\Cecil\Mono.Cecil.Pdb.dll</HintPath>
+      <HintPath>..\..\Lib\Cecil\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Rocks, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Lib\Cecil\Mono.Cecil.Rocks.dll</HintPath>
+      <HintPath>..\..\Lib\Cecil\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EnumerableEx.cs" />
-    <Compile Include="FormatStringTokenResolver.cs" />
-    <Compile Include="GitDirFinder.cs" />
-    <Compile Include="LibGitEx.cs" />
-    <Compile Include="ModuleWeaver.cs" />
-    <Compile Include="..\CommonAssemblyInfo.cs" />
-    <Compile Include="WeavingException.cs" />
+    <Compile Include="AssemblyLocation.cs" />
+    <Compile Include="ExistingTests.cs" />
+    <Compile Include="TokenResolverTests.cs" />
+    <Compile Include="Verifier.cs" />
+    <Compile Include="TaskTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NugetAssets\install.ps1" />
-    <None Include="NugetAssets\uninstall.ps1" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Lib\Verpatch\verpatch-ReadMe.txt">
-      <Link>verpatch-ReadMe.txt</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Lib\Verpatch\verpatch.exe">
-      <Link>verpatch.exe</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="NugetAssets\Fody_ToBeDeleted.txt" />
+    <ProjectReference Include="..\AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj">
+      <Project>{1f67c3cf-6705-4a98-b9a4-c448dca95bc2}</Project>
+      <Name>AssemblyToProcessExistingAttribute</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AssemblyToProcess\AssemblyToProcess.csproj">
+      <Project>{7dec4e2d-f872-434e-a267-0bad65299950}</Project>
+      <Name>AssemblyToProcess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CK.Stamp.Fody\CK.Stamp.Fody.csproj">
+      <Project>{C3578A7B-09A6-4444-9383-0DEAFA4958BD}</Project>
+      <Name>CK.Stamp.Fody</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
-
-"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
 if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
 if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"

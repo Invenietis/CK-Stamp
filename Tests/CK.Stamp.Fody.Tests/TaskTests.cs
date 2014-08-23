@@ -21,7 +21,6 @@ public class TaskTests
 
         afterAssemblyPath = beforeAssemblyPath.Replace(".dll", "2.dll");
         File.Copy(beforeAssemblyPath, afterAssemblyPath, true);
-
         var moduleDefinition = ModuleDefinition.ReadModule(afterAssemblyPath);
         var currentDirectory = AssemblyLocation.CurrentDirectory();
         var weavingTask = new ModuleWeaver

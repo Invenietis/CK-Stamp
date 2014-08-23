@@ -2,5 +2,5 @@
 
 [assembly: AssemblyTitle("AssemblyToProcess")]
 [assembly: AssemblyProduct("AssemblyToProcess")]
-[assembly: AssemblyVersion("1.0.0.0")]
-//[assembly: AssemblyInformationalVersionAttribute("1.0.0.0/aString")]
+[assembly: AssemblyVersion("10.20.30.40")]
+//[assembly: AssemblyInformationalVersionAttribute( "%ck-standard%" )]

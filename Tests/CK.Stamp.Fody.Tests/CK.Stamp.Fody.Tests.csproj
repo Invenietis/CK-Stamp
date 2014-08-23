@@ -8,8 +8,8 @@
     <ProjectGuid>{5A86453B-96FB-4B6E-A283-225BB9F753D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tests</RootNamespace>
-    <AssemblyName>Tests</AssemblyName>
+    <RootNamespace>CK.Stamp.Fody.Tests</RootNamespace>
+    <AssemblyName>CK.Stamp.Fody.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -64,10 +64,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyLocation.cs" />
-    <Compile Include="ExistingTests.cs" />
+    <Compile Include="AssemblyToProcessTests.cs" />
+    <Compile Include="ProcessAssemblyBaseTest.cs" />
     <Compile Include="TokenResolverTests.cs" />
     <Compile Include="Verifier.cs" />
-    <Compile Include="TaskTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

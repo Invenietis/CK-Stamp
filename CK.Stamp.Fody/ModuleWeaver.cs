@@ -82,7 +82,9 @@ public class ModuleWeaver
     public void AfterWeaving()
     {
         var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
-        var arguments = string.Format( "\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, _informationalVersion, _info.AssemblyVersion.ToString() );
+        // Product version MUST start with the binary version number.
+        var productVersion = _info.AssemblyVersion.ToString() + " - " + _informationalVersion;
+        var arguments = string.Format( "\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, productVersion, _info.AssemblyVersion.ToString() );
         LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
         var startInfo = new ProcessStartInfo
                         {

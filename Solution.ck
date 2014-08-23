@@ -5,7 +5,7 @@
   <c:Fixes />
   <c:Versioning c:Mode="Simple" />
   <c:InfoReleaseDatabase>
-    <c:Name />
-    <c:GUID />
+    <c:Name>CK-Public-Release</c:Name>
+    <c:GUID>f23ffce5-e575-4bff-bee4-ab08a9447f1e</c:GUID>
   </c:InfoReleaseDatabase>
 </c:Solution>

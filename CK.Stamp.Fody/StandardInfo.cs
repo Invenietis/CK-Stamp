@@ -45,7 +45,7 @@ namespace CK.Releaser
             }
             else
             {
-                b.Append( '!' ).Append( InvalidReleaseReason );
+                b.Append( '!' ).Append( InvalidReleaseReason ).Append( ' ' );
                 if( Persistent.BranchName != null ) b.Append( "Branch: " ).Append( Persistent.BranchName );
                 b.Append( " - " ).Append( Persistent.UserName );
                 if( Persistent.CommitSha != null ) b.Append( " - Sha: " ).Append( Persistent.CommitSha );

@@ -4,9 +4,8 @@ using LibGit2Sharp;
 
 namespace CK.Releaser
 {
-    public class GitDirFinder
+    class GitFinder
     {
-
         public static string TreeWalkForGitDir( string currentDirectory )
         {
             while( true )

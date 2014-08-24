@@ -69,7 +69,7 @@
       <Link>SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BasicVersionOnBranch.cs" />
-    <Compile Include="GitDirFinder.cs" />
+    <Compile Include="GitFinder.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="PersistentInfo.cs" />
     <Compile Include="StandardInfo.cs" />

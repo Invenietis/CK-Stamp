@@ -51,7 +51,7 @@ namespace CK.Releaser
 
         public static PersistentInfo LoadFromPath( string path )
         {
-            using( var repo = GitDirFinder.TryLoadFromPath( path ) )
+            using( var repo = GitFinder.TryLoadFromPath( path ) )
             {
                 return new PersistentInfo( repo );
             }

@@ -29,7 +29,7 @@ public class ModuleWeaver
     public void Execute()
     {
         SetSearchPath();
-        using( var repo = GitDirFinder.TryLoadFromPath( SolutionDirectoryPath ) )
+        using( var repo = GitFinder.TryLoadFromPath( SolutionDirectoryPath ) )
         {
             _info = new StandardInfo( new PersistentInfo( repo ), ModuleDefinition );
 

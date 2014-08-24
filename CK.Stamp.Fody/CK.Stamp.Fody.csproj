@@ -65,12 +65,15 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicVersionOnBranch.cs" />
     <Compile Include="EnumerableEx.cs" />
     <Compile Include="FormatStringTokenResolver.cs" />
     <Compile Include="GitDirFinder.cs" />
     <Compile Include="LibGitEx.cs" />
     <Compile Include="ModuleWeaver.cs" />
     <Compile Include="..\CommonAssemblyInfo.cs" />
+    <Compile Include="PersistentInfo.cs" />
+    <Compile Include="StandardInfo.cs" />
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,13 +94,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-
-"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
+    <PostBuildEvent>"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
 if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
 if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
-xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
+xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"
+
+echo *******************************
+copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.dll"
+copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.pdb"
+echo *******************************
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

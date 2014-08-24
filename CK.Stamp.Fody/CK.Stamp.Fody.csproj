@@ -8,12 +8,17 @@
     <ProjectGuid>{C3578A7B-09A6-4444-9383-0DEAFA4958BD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Stamp.Fody</RootNamespace>
+    <RootNamespace>CK.Core</RootNamespace>
     <AssemblyName>CK.Stamp.Fody</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -32,12 +37,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibGit2Sharp">
@@ -65,12 +64,12 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EnumerableEx.cs" />
-    <Compile Include="FormatStringTokenResolver.cs" />
-    <Compile Include="GitDirFinder.cs" />
-    <Compile Include="LibGitEx.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="BasicVersionOnBranch.cs" />
+    <Compile Include="GitFinder.cs" />
     <Compile Include="ModuleWeaver.cs" />
-    <Compile Include="..\CommonAssemblyInfo.cs" />
+    <Compile Include="PersistentInfo.cs" />
+    <Compile Include="StandardInfo.cs" />
     <Compile Include="WeavingException.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,13 +90,17 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-
-"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
+    <PostBuildEvent>"$(SolutionDir)\Tools\ILMerge.exe" /v4 /out:"$(TargetDir)\CK.Stamp.Fody-merged.dll" "$(TargetPath)" "$(TargetDir)\LibGit2Sharp.dll"
 if not exist "$(TargetDir)NativeBinaries" md "$(TargetDir)NativeBinaries"
 if not exist "$(TargetDir)NativeBinaries\x86" md "$(TargetDir)NativeBinaries\x86"
 xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\x86\*.*" "$(TargetDir)NativeBinaries\x86"
 if not exist "$(TargetDir)NativeBinaries\amd64" md "$(TargetDir)NativeBinaries\amd64"
-xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"</PostBuildEvent>
+xcopy /s /y /d "$(SolutionDir)packages\LibGit2Sharp.0.18.1.0\lib\net40\NativeBinaries\amd64\*.*" "$(TargetDir)NativeBinaries\amd64"
+
+rem echo *******************************
+rem copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.dll"
+rem copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.pdb"
+rem echo *******************************
+</PostBuildEvent>
   </PropertyGroup>
 </Project>

@@ -3,13 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CK.Stamp.Fody", "Fody\CK.Stamp.Fody.csproj", "{C3578A7B-09A6-4444-9383-0DEAFA4958BD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CK.Stamp.Fody", "CK.Stamp.Fody\CK.Stamp.Fody.csproj", "{C3578A7B-09A6-4444-9383-0DEAFA4958BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{5A86453B-96FB-4B6E-A283-225BB9F753D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CK.Stamp.Fody.Tests", "Tests\CK.Stamp.Fody.Tests\CK.Stamp.Fody.Tests.csproj", "{5A86453B-96FB-4B6E-A283-225BB9F753D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToProcess", "AssemblyToProcess\AssemblyToProcess.csproj", "{7DEC4E2D-F872-434E-A267-0BAD65299950}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E09D53AD-327F-45B6-9485-5945C59FD7FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToProcessExistingAttribute", "AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj", "{1F67C3CF-6705-4A98-B9A4-C448DCA95BC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToProcess", "Tests\AssemblyToProcess\AssemblyToProcess.csproj", "{7DEC4E2D-F872-434E-A267-0BAD65299950}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssemblyToProcessExistingAttribute", "Tests\AssemblyToProcessExistingAttribute\AssemblyToProcessExistingAttribute.csproj", "{1F67C3CF-6705-4A98-B9A4-C448DCA95BC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D27E1B86-652C-4996-9D7C-CF899211443A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,5 +53,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5A86453B-96FB-4B6E-A283-225BB9F753D3} = {E09D53AD-327F-45B6-9485-5945C59FD7FB}
+		{7DEC4E2D-F872-434E-A267-0BAD65299950} = {E09D53AD-327F-45B6-9485-5945C59FD7FB}
+		{1F67C3CF-6705-4A98-B9A4-C448DCA95BC2} = {E09D53AD-327F-45B6-9485-5945C59FD7FB}
 	EndGlobalSection
 EndGlobal

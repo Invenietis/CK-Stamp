@@ -49,6 +49,14 @@ namespace CK.Releaser
             }
         }
 
+        public static PersistentInfo LoadFromPath( string path )
+        {
+            using( var repo = GitDirFinder.TryLoadFromPath( path ) )
+            {
+                return new PersistentInfo( repo );
+            }
+        }
+
         static BasicVersionOnBranch FindReleasedVersion( Repository r, Commit commit )
         {
             foreach( var tag in r.Tags )

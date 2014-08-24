@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using LibGit2Sharp;
 
 public class GitDirFinder
 {
@@ -28,5 +30,23 @@ public class GitDirFinder
             }
         }
         return null;
+    }
+
+    public static Repository TryLoadFromPath( string path )
+    {
+        try
+        {
+            path = Path.GetFullPath( path );
+            var gitDir = TreeWalkForGitDir( path );
+            return gitDir != null ? new Repository( gitDir ) : null;
+        }
+        catch( Exception exception )
+        {
+            if( exception.Message.Contains( "LibGit2Sharp.Core.NativeMethods" ) || exception.Message.Contains( "FilePathMarshaler" ) )
+            {
+                throw new WeavingException( "Restart of Visual Studio required due to update of 'CK.Stamp.Fody': " + exception.Message );
+            }
+            throw;
+        }
     }
 }

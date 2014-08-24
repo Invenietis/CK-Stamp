@@ -15,8 +15,8 @@ public class ModuleWeaver
     public string SolutionDirectoryPath { get; set; }
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
-    static bool isPathSet;
-
+    
+    static bool _isPathSet;
     StandardInfo _info;
     string _informationalVersion;
 
@@ -29,9 +29,7 @@ public class ModuleWeaver
     public void Execute()
     {
         SetSearchPath();
-
-        var gitDir = GitDirFinder.TreeWalkForGitDir( SolutionDirectoryPath );
-        using( var repo = gitDir == null ? null : GetRepo( gitDir ) )
+        using( var repo = GitDirFinder.TryLoadFromPath( SolutionDirectoryPath ) )
         {
             _info = new StandardInfo( new PersistentInfo( repo ), ModuleDefinition );
 
@@ -55,26 +53,10 @@ public class ModuleWeaver
         }
     }
 
-    static Repository GetRepo( string gitDir )
-    {
-        try
-        {
-            return new Repository( gitDir );
-        }
-        catch( Exception exception )
-        {
-            if( exception.Message.Contains( "LibGit2Sharp.Core.NativeMethods" ) || exception.Message.Contains( "FilePathMarshaler" ) )
-            {
-                throw new WeavingException( "Restart of Visual Studio required due to update of 'Stamp.Fody': " + exception.Message );
-            }
-            throw;
-        }
-    }
-
     void SetSearchPath()
     {
-        if( isPathSet ) return;
-        isPathSet = true;
+        if( _isPathSet ) return;
+        _isPathSet = true;
         var nativeBinaries = Path.Combine( AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture() );
         var existingPath = Environment.GetEnvironmentVariable( "PATH" );
         var newPath = string.Concat( nativeBinaries, Path.PathSeparator, existingPath );
@@ -83,23 +65,19 @@ public class ModuleWeaver
 
     static string GetProcessorArchitecture()
     {
-        if (Environment.Is64BitProcess)
-        {
-            return "amd64";
-        }
-        return "x86";
+        return Environment.Is64BitProcess ? "amd64" : "x86";
     }
 
     TypeDefinition GetVersionAttribute()
     {
-        var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve("mscorlib");
-        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault(x => x.Name == "AssemblyInformationalVersionAttribute");
-        if (msCoreAttribute != null)
+        var msCoreLib = ModuleDefinition.AssemblyResolver.Resolve( "mscorlib" );
+        var msCoreAttribute = msCoreLib.MainModule.Types.FirstOrDefault( x => x.Name == "AssemblyInformationalVersionAttribute" );
+        if( msCoreAttribute != null )
         {
             return msCoreAttribute;
         }
-        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve("System.Runtime");
-        return systemRuntime.MainModule.Types.First(x => x.Name == "AssemblyInformationalVersionAttribute");
+        var systemRuntime = ModuleDefinition.AssemblyResolver.Resolve( "System.Runtime" );
+        return systemRuntime.MainModule.Types.First( x => x.Name == "AssemblyInformationalVersionAttribute" );
     }
 
     public void AfterWeaving()

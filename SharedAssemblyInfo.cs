@@ -1,6 +1,7 @@
-using System.Reflection;
+ï»¿using System.Reflection;
 
 [assembly: AssemblyProduct( "CK-Releaser" )]
-[assembly: AssemblyCopyright( "Copyright © Invenietis 2014" )]
+[assembly: AssemblyCopyright( "Copyright ï¿½ Invenietis 2014" )]
 [assembly: AssemblyVersion( "1.0.0" )]
 [assembly: AssemblyInformationalVersion( "1.0.0-master (no auto-stamp)." )]
+[assembly: AssemblyFileVersion( "1.0.1" )]

@@ -4,7 +4,7 @@ using LibGit2Sharp;
 
 namespace CK.Releaser
 {
-    public class GitFinder
+    class GitFinder
     {
         public static string TreeWalkForGitDir( string currentDirectory )
         {
@@ -15,23 +15,31 @@ namespace CK.Releaser
                 {
                     return gitDir;
                 }
-                var parent = Directory.GetParent( currentDirectory );
-                if( parent == null )
+                try
                 {
-                    break;
+                    var parent = Directory.GetParent( currentDirectory );
+                    if( parent == null )
+                    {
+                        break;
+                    }
+                    currentDirectory = parent.FullName;
                 }
-                currentDirectory = parent.FullName;
+                catch
+                {
+                    // trouble with tree walk.
+                    return null;
+                }
             }
             return null;
         }
 
-        public static Repository LoadFromPath( string path )
+        public static Repository TryLoadFromPath( string path )
         {
             try
             {
                 path = Path.GetFullPath( path );
-                var gitDir = GitFinder.TreeWalkForGitDir( path );
-                return new Repository( gitDir );
+                var gitDir = TreeWalkForGitDir( path );
+                return gitDir != null ? new Repository( gitDir ) : null;
             }
             catch( Exception exception )
             {

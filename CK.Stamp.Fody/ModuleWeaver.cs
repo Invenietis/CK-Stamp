@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using CK.Releaser;
 using LibGit2Sharp;
 using Mono.Cecil;
-using CK.Releaser;
 using Mono.Collections.Generic;
 
 public class ModuleWeaver
@@ -16,8 +16,7 @@ public class ModuleWeaver
     public string AddinDirectoryPath { get; set; }
     public string AssemblyFilePath { get; set; }
     
-    static PersistentInfo _persistentInfo;
-    
+    static bool _isPathSet;
     StandardInfo _info;
     string _informationalVersion;
 
@@ -29,37 +28,39 @@ public class ModuleWeaver
 
     public void Execute()
     {
-        _info = new CK.Releaser.StandardInfo( EnsurePersistentInfo(), ModuleDefinition );
-        Collection<CustomAttribute> customAttributes = ModuleDefinition.Assembly.CustomAttributes;
-        var customAttribute = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
-        if( customAttribute != null )
+        SetSearchPath();
+        using( var repo = GitFinder.TryLoadFromPath( SolutionDirectoryPath ) )
         {
-            _informationalVersion = (string)customAttribute.ConstructorArguments[0].Value;
-            _informationalVersion = _info.ReplaceTokens( _informationalVersion );
-            customAttribute.ConstructorArguments[0] = new CustomAttributeArgument( ModuleDefinition.TypeSystem.String, _informationalVersion );
-        }
-        else
-        {
-            var versionAttribute = GetVersionAttribute();
-            var constructor = ModuleDefinition.Import( versionAttribute.Methods.First( x => x.IsConstructor ) );
-            customAttribute = new CustomAttribute( constructor );
-            _informationalVersion = _info.ToString();
-            customAttribute.ConstructorArguments.Add( new CustomAttributeArgument( ModuleDefinition.TypeSystem.String, _informationalVersion ) );
-            customAttributes.Add( customAttribute );
+            _info = new StandardInfo( new PersistentInfo( repo ), ModuleDefinition );
+
+            var customAttributes = ModuleDefinition.Assembly.CustomAttributes;
+            var attr = customAttributes.FirstOrDefault(x => x.AttributeType.Name == "AssemblyInformationalVersionAttribute");
+            if( attr != null )
+            {
+                _informationalVersion = (string)attr.ConstructorArguments[0].Value;
+                _informationalVersion = _info.ReplaceTokens( _informationalVersion );
+                attr.ConstructorArguments[0] = new CustomAttributeArgument( ModuleDefinition.TypeSystem.String, _informationalVersion );
+            }
+            else
+            {
+                var versionAttribute = GetVersionAttribute();
+                var constructor = ModuleDefinition.Import( versionAttribute.Methods.First( x => x.IsConstructor ) );
+                attr = new CustomAttribute( constructor );
+                _informationalVersion = _info.ToString();
+                attr.ConstructorArguments.Add( new CustomAttributeArgument( ModuleDefinition.TypeSystem.String, _informationalVersion ) );
+                customAttributes.Add( attr );
+            }
         }
     }
 
-    PersistentInfo EnsurePersistentInfo()
+    void SetSearchPath()
     {
-        if( _persistentInfo == null )
-        {
-            _persistentInfo = PersistentInfo.LoadFromPath( SolutionDirectoryPath );
-            var nativeBinaries = Path.Combine( AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture() );
-            var existingPath = Environment.GetEnvironmentVariable( "PATH" );
-            var newPath = string.Concat( nativeBinaries, Path.PathSeparator, existingPath );
-            Environment.SetEnvironmentVariable( "PATH", newPath );
-        }
-        return _persistentInfo;
+        if( _isPathSet ) return;
+        _isPathSet = true;
+        var nativeBinaries = Path.Combine( AddinDirectoryPath, "NativeBinaries", GetProcessorArchitecture() );
+        var existingPath = Environment.GetEnvironmentVariable( "PATH" );
+        var newPath = string.Concat( nativeBinaries, Path.PathSeparator, existingPath );
+        Environment.SetEnvironmentVariable( "PATH", newPath );
     }
 
     static string GetProcessorArchitecture()
@@ -81,37 +82,37 @@ public class ModuleWeaver
 
     public void AfterWeaving()
     {
-        var verPatchPath = Path.Combine(AddinDirectoryPath, "verpatch.exe");
+        var verPatchPath = Path.Combine( AddinDirectoryPath, "verpatch.exe" );
         // Product version MUST start with the binary version number.
         var productVersion = _info.AssemblyVersion.ToString() + " - " + _informationalVersion;
         var arguments = string.Format( "\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, productVersion, _info.AssemblyVersion.ToString() );
-        LogInfo(string.Format("Patching version using: {0} {1}", verPatchPath, arguments));
+        LogInfo( string.Format( "Patching version using: {0} {1}", verPatchPath, arguments ) );
         var startInfo = new ProcessStartInfo
-                        {
-                            FileName = verPatchPath,
-                            Arguments = arguments,
-                            CreateNoWindow = true,
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true,
-                            RedirectStandardError = true,
-                            WorkingDirectory = Path.GetTempPath()
-                        };
-        using (var process = Process.Start(startInfo))
         {
-            if (!process.WaitForExit(1000))
+            FileName = verPatchPath,
+            Arguments = arguments,
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            WorkingDirectory = Path.GetTempPath()
+        };
+        using( var process = Process.Start( startInfo ) )
+        {
+            if( !process.WaitForExit( 1000 ) )
             {
-                var timeoutMessage = string.Format("Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments);
-                throw new WeavingException(timeoutMessage);
+                var timeoutMessage = string.Format( "Failed to apply product version to Win32 resources in 1 second.\r\nFailed command: {0} {1}", verPatchPath, arguments );
+                throw new WeavingException( timeoutMessage );
             }
 
-            if (process.ExitCode == 0)
+            if( process.ExitCode == 0 )
             {
                 return;
             }
             var output = process.StandardOutput.ReadToEnd();
             var error = process.StandardError.ReadToEnd();
-            var message = string.Format("Failed to apply product version to Win32 resources.\r\nOutput: {0}\r\nError: {1}", output, error);
-            throw new WeavingException(message);
+            var message = string.Format( "Failed to apply product version to Win32 resources.\r\nOutput: {0}\r\nError: {1}", output, error );
+            throw new WeavingException( message );
         }
     }
 }

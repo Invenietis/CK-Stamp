@@ -2,51 +2,54 @@
 using System.IO;
 using LibGit2Sharp;
 
-public class GitDirFinder
+namespace CK.Releaser
 {
-
-    public static string TreeWalkForGitDir(string currentDirectory)
+    public class GitDirFinder
     {
-        while (true)
+
+        public static string TreeWalkForGitDir( string currentDirectory )
         {
-            var gitDir = Path.Combine(currentDirectory, @".git");
-            if (Directory.Exists(gitDir))
+            while( true )
             {
-                return gitDir;
+                var gitDir = Path.Combine( currentDirectory, @".git" );
+                if( Directory.Exists( gitDir ) )
+                {
+                    return gitDir;
+                }
+                try
+                {
+                    var parent = Directory.GetParent( currentDirectory );
+                    if( parent == null )
+                    {
+                        break;
+                    }
+                    currentDirectory = parent.FullName;
+                }
+                catch
+                {
+                    // trouble with tree walk.
+                    return null;
+                }
             }
+            return null;
+        }
+
+        public static Repository TryLoadFromPath( string path )
+        {
             try
             {
-                var parent = Directory.GetParent(currentDirectory);
-                if (parent == null)
+                path = Path.GetFullPath( path );
+                var gitDir = TreeWalkForGitDir( path );
+                return gitDir != null ? new Repository( gitDir ) : null;
+            }
+            catch( Exception exception )
+            {
+                if( exception.Message.Contains( "LibGit2Sharp.Core.NativeMethods" ) || exception.Message.Contains( "FilePathMarshaler" ) )
                 {
-                    break;
+                    throw new WeavingException( "Restart of Visual Studio required due to update of 'CK.Stamp.Fody': " + exception.Message );
                 }
-                currentDirectory = parent.FullName;
+                throw;
             }
-            catch
-            {
-                // trouble with tree walk.
-                return null;
-            }
-        }
-        return null;
-    }
-
-    public static Repository TryLoadFromPath( string path )
-    {
-        try
-        {
-            path = Path.GetFullPath( path );
-            var gitDir = TreeWalkForGitDir( path );
-            return gitDir != null ? new Repository( gitDir ) : null;
-        }
-        catch( Exception exception )
-        {
-            if( exception.Message.Contains( "LibGit2Sharp.Core.NativeMethods" ) || exception.Message.Contains( "FilePathMarshaler" ) )
-            {
-                throw new WeavingException( "Restart of Visual Studio required due to update of 'CK.Stamp.Fody': " + exception.Message );
-            }
-            throw;
         }
     }
 }

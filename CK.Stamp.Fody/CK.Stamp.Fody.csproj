@@ -38,12 +38,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\SharedKey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibGit2Sharp">
       <HintPath>..\packages\LibGit2Sharp.0.18.1.0\lib\net40\LibGit2Sharp.dll</HintPath>
@@ -71,13 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="EnumerableEx.cs" />
-    <Compile Include="GitFinder.cs" />
-    <Compile Include="ModuleWeaver.cs" />
-    <Compile Include="BasicVersionOnBranch.cs" />
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>SharedAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="BasicVersionOnBranch.cs" />
     <Compile Include="GitFinder.cs" />
     <Compile Include="ModuleWeaver.cs" />
@@ -114,10 +101,6 @@ rem echo *******************************
 rem copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.dll"
 rem copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.pdb"
 rem echo *******************************
-echo *******************************
-copy /y "$(TargetDir)CK.Stamp.Fody-merged.dll" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.dll"
-copy /y "$(TargetDir)CK.Stamp.Fody-merged.pdb" "$(SolutionDir)..\CK-Releaser\packages\CK.Stamp.Fody.0.8.3\CK.Stamp.Fody.pdb"
-echo *******************************
 </PostBuildEvent>
   </PropertyGroup>
 </Project>

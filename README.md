@@ -37,7 +37,7 @@ It then sets or creates a `AssemblyInformationalVersionAttribute` if it does not
   - A valid release starts with the released tags (minus the 'v'):
      3.0.0-alpha - SPICANDIVE\Olivier - Sha: 814aed234e9e97a0a271e444905e18c0c5e07a1c
 
-## Templating the version
+## Templating the version (high probability to be removed in next versions)
 
 You can customize the string used in the `AssemblyInformationalVersionAttribute` by adding some tokens to the string, which Ck.Stamp.Fody will replace.
 

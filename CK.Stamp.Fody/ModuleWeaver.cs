@@ -86,8 +86,8 @@ public class ModuleWeaver
         // Product version MUST start with the binary version number.
         var productVersion = _info.AssemblyVersion.ToString() + " - " + _informationalVersion;
         var arguments = string.Format( "\"{0}\" /pv \"{1}\" /high /va {2}", AssemblyFilePath, productVersion, _info.AssemblyVersion.ToString() );
-        LogInfo( string.Format( "Patching product version to Win32 resources using: {0}", verPatchPath ) );
-        LogInfo( string.Format( "-> File version is: {0}", arguments ) );
+        LogInfo( string.Format( "Patching product version (Win32 resources) using: {0} {1}", verPatchPath, arguments ) );
+        LogInfo( string.Format( "-> Product version is: {0}", productVersion ) );
         var startInfo = new ProcessStartInfo
         {
             FileName = verPatchPath,

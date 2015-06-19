@@ -38,6 +38,7 @@ public static class Verifier
         }
         return exePath;
     }
+
     static string TrimLineNumbers(string foo)
     {
         return Regex.Replace(foo, @"0x.*]", "");

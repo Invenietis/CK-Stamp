@@ -12,16 +12,21 @@ namespace CK.Releaser
     {
         public readonly string RepositoryError;
         public readonly bool IsDirty;
-        public readonly BasicVersionOnBranch ReleasedTag;
+        public readonly ReleaseTagVersion ReleasedTag;
         public readonly string BranchName;
         public readonly string CommitSha;
         public readonly string UserName;
 
-        public PersistentInfo( Repository r )
+        PersistentInfo()
         {
             UserName = String.IsNullOrWhiteSpace( Environment.UserDomainName )
                            ? Environment.UserName
                            : string.Format( @"{0}\{1}", Environment.UserDomainName, Environment.UserName );
+        }
+
+        public PersistentInfo( Repository r )
+            : this()
+        {
             if( r == null ) RepositoryError = "No repository.";
             else
             {
@@ -49,6 +54,20 @@ namespace CK.Releaser
             }
         }
 
+        /// <summary>
+        /// Initializes a new <see cref="PersistentInfo"/> independent from any git repository.
+        /// </summary>
+        /// <param name="validReleaseTag">A valid release tag.</param>
+        /// <param name="anyCommitSha">Any commit SHA1 (can be any string).</param>
+        public PersistentInfo( ReleaseTagVersion validReleaseTag, string anyCommitSha = null )
+            : this()
+        {
+            if( !validReleaseTag.IsValid ) throw new ArgumentException();
+            ReleasedTag = validReleaseTag;
+            BranchName = validReleaseTag.BranchName;
+            CommitSha = anyCommitSha;
+        }
+
         public static PersistentInfo LoadFromPath( string path )
         {
             using( var repo = GitFinder.TryLoadFromPath( path ) )
@@ -57,17 +76,17 @@ namespace CK.Releaser
             }
         }
 
-        static BasicVersionOnBranch FindReleasedVersion( Repository r, Commit commit )
+        static ReleaseTagVersion FindReleasedVersion( Repository r, Commit commit )
         {
             foreach( var tag in r.Tags )
             {
                 if( tag.Target.Sha == commit.Sha )
                 {
-                    BasicVersionOnBranch v = BasicVersionOnBranch.TryParse( tag.Name );
+                    ReleaseTagVersion v = ReleaseTagVersion.TryParse( tag.Name );
                     if( v.IsValid ) return v;
                 }
             }
-            return new BasicVersionOnBranch();
+            return new ReleaseTagVersion();
         }
 
 

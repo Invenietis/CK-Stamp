@@ -30,7 +30,7 @@ namespace CK.Releaser
             {
                 if( Persistent.RepositoryError != null ) return Persistent.RepositoryError;
                 if( Persistent.IsDirty ) return "Modified files.";
-                if( !Persistent.ReleasedTag.IsValid ) return "No released tag.";
+                if( !Persistent.ReleasedTag.IsValid ) return "Missing or invalid released tag. Must be like 'v0.0.0-branch' or 'v12.34.56-master-fix.1'.";
                 if( !Persistent.ReleasedTag.Equals( AssemblyVersion ) ) return String.Format( "Assembly version '{0}' differ from tag '{1}'.", AssemblyVersion.ToString(), Persistent.ReleasedTag.ToString() );
                 return null;
             }
@@ -79,10 +79,15 @@ namespace CK.Releaser
 
         static Regex _environmentToken = new Regex( @"%env\[([^\]]+)]%" );
 
-        public StandardInfo( PersistentInfo p, ModuleDefinition m )
+        public StandardInfo( PersistentInfo p, Version assemblyVersion )
         {
             Persistent = p;
-            AssemblyVersion = m.Assembly.Name.Version;
+            AssemblyVersion = assemblyVersion;
+        }
+
+        public StandardInfo( PersistentInfo p, ModuleDefinition m )
+            : this( p, m.Assembly.Name.Version )
+        {
         }
 
     }

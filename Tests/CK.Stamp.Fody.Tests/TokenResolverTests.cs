@@ -20,7 +20,7 @@ namespace CK.Stamp.Fody.Tests
         {
             var beforeAssemblyPath = Path.GetFullPath( @"..\..\..\AssemblyToProcess\bin\Debug\AssemblyToProcess.dll" );
 #if (!DEBUG)
-        beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
+            beforeAssemblyPath = beforeAssemblyPath.Replace("Debug", "Release");
 #endif
             _moduleDefinition = ModuleDefinition.ReadModule( beforeAssemblyPath );
             _persistentInfo = PersistentInfo.LoadFromPath( Environment.CurrentDirectory );
